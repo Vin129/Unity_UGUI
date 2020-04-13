@@ -41,7 +41,8 @@ namespace UnityEngine.UI
         [FormerlySerializedAs("m_Mat")]
         [SerializeField] protected Material m_Material; // 材质发生改变时会打脏标记 向CanvasUpdateRegistry.RegisterCanvasElementForGraphicRebuild注册重建 
 
-        // 看到了这里，标记
+        //Mark,to CanvasUpdate
+        //Back,待定 ClipperRegistry
 
         [SerializeField] private Color m_Color = Color.white;
         public virtual Color color { get { return m_Color; } set { if (SetPropertyUtility.SetColor(ref m_Color, value)) SetVerticesDirty(); } }
