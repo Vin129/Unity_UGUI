@@ -27,7 +27,7 @@ namespace UnityEngine.EventSystems
         /// The max number of intersections allowed. 0 = allocating version anything else is non alloc.
         /// </summary>
         [SerializeField]
-        protected int m_MaxRayIntersections = 0;
+        protected int m_MaxRayIntersections = 0; // 最大交点？
         protected int m_LastMaxRayIntersections = 0;
 
         RaycastHit[] m_Hits;

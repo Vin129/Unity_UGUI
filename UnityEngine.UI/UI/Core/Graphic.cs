@@ -44,11 +44,13 @@ namespace UnityEngine.UI
         //Mark,to CanvasUpdate
         //Back,待定 ClipperRegistry
 
-        [SerializeField] private Color m_Color = Color.white;
+        [SerializeField] private Color m_Color = Color.white;//颜色rgba发生变化时 会打脏标
         public virtual Color color { get { return m_Color; } set { if (SetPropertyUtility.SetColor(ref m_Color, value)) SetVerticesDirty(); } }
 
         [SerializeField] private bool m_RaycastTarget = true;
         public virtual bool raycastTarget { get { return m_RaycastTarget; } set { m_RaycastTarget = value; } }
+
+        //Mark,to EventSystem
 
         [NonSerialized] private RectTransform m_RectTransform;
         [NonSerialized] private CanvasRenderer m_CanvasRenderer;

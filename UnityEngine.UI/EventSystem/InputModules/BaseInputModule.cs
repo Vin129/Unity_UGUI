@@ -102,6 +102,8 @@ namespace UnityEngine.EventSystems
             }
         }
 
+
+        //寻找两个物体的公共根节点
         protected static GameObject FindCommonRoot(GameObject g1, GameObject g2)
         {
             if (g1 == null || g2 == null)
@@ -127,6 +129,15 @@ namespace UnityEngine.EventSystems
         // (but not including the common root).
         protected void HandlePointerExitAndEnter(PointerEventData currentPointerData, GameObject newEnterTarget)
         {
+            // 处理触点是否进入新的物体
+            // 如果进入未空或者触点的进入体为空，则将触点中的 hovered对象 全部执行"出点"操作
+            // 若两者均为空 或 两者相同 则没有发生 新的进入事件 return
+
+            //两者不同,确认两者是否存在共同根节点CommonRoot
+            //旧的进入点 到 CommonRoot 前的所有 hovered对象 执行 出点
+            //将新节点设置为 进入点， 新节点 至 CommonRoot 前的对象添加进hovered中并执行 进点 操作
+
+
             // if we have no target / pointerEnter has been deleted
             // just send exit events to anything we are tracking
             // then exit
