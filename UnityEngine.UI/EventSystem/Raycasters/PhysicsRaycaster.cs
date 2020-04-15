@@ -89,6 +89,7 @@ namespace UnityEngine.EventSystems
 
         public override void Raycast(PointerEventData eventData, List<RaycastResult> resultAppendList)
         {
+            //mark 4/15
             // Cull ray casts that are outside of the view rect. (case 636595)
             if (eventCamera == null || !eventCamera.pixelRect.Contains(eventData.position))
                 return;
