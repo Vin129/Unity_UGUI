@@ -33,6 +33,7 @@ namespace UnityEngine.EventSystems
             m_PointerData.Remove(data.pointerId);
         }
 
+        // Touch 更新 PointerEventData
         protected PointerEventData GetTouchPointerEventData(Touch input, out bool pressed, out bool released)
         {
             PointerEventData pointerData;

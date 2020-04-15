@@ -457,6 +457,7 @@ namespace UnityEngine.EventSystems
         /// </summary>
         protected void ProcessMouseEvent(int id)
         {
+            // mark 4/15
             var mouseData = GetMousePointerEventData(id);
             var leftButtonData = mouseData.GetButtonState(PointerEventData.InputButton.Left).eventData;
 
