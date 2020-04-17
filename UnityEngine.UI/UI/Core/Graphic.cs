@@ -51,6 +51,7 @@ namespace UnityEngine.UI
         public virtual bool raycastTarget { get { return m_RaycastTarget; } set { m_RaycastTarget = value; } }
 
         //Mark,to EventSystem
+        //Back,事件系统已整理完毕。4/17
 
         [NonSerialized] private RectTransform m_RectTransform;
         [NonSerialized] private CanvasRenderer m_CanvasRenderer;
