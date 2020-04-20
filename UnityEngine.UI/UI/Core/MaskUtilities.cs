@@ -37,6 +37,9 @@ namespace UnityEngine.UI
             ListPool<Component>.Release(components);
         }
 
+        ///<summary>
+        ///寻找根节点上overridesort的canvas
+        ///</summary>
         public static Transform FindRootSortOverrideCanvas(Transform start)
         {
             var canvasList = ListPool<Canvas>.Get();
@@ -56,6 +59,9 @@ namespace UnityEngine.UI
             return canvas != null ? canvas.transform : null;
         }
 
+        ///<summary>
+        ///统计每个根上含mask组件数量代表目前深度。
+        ///</summary>
         public static int GetStencilDepth(Transform transform, Transform stopAfter)
         {
             var depth = 0;
