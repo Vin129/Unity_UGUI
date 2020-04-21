@@ -5,6 +5,9 @@ namespace UnityEngine.UI
 {
     public class MaskUtilities
     {
+        ///<summary>
+        ///调用所有子节点上IClippable组件的剪裁方法。
+        ///</summary>
         public static void Notify2DMaskStateChanged(Component mask)
         {
             var components = ListPool<Component>.Get();
@@ -110,6 +113,9 @@ namespace UnityEngine.UI
             return false;
         }
 
+        ///<summary>
+        ///获取最近父级节点中在overrideSortingCanvas下的RectMask2D
+        ///</summary>
         public static RectMask2D GetRectMaskForClippable(IClippable clippable)
         {
             List<RectMask2D> rectMaskComponents = ListPool<RectMask2D>.Get();
@@ -152,6 +158,10 @@ namespace UnityEngine.UI
             return componentToReturn;
         }
 
+
+        ///<summary>
+        ///获取所有父级节点中在overrideSortingCanvas下的RectMask2DList
+        ///</summary>
         public static void GetRectMasksForClip(RectMask2D clipper, List<RectMask2D> masks)
         {
             masks.Clear();

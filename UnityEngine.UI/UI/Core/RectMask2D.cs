@@ -133,6 +133,7 @@ namespace UnityEngine.UI
 
         public virtual void PerformClipping()
         {
+            //mark 4/21
             if (ReferenceEquals(Canvas, null))
             {
                 return;
