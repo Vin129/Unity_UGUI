@@ -412,7 +412,7 @@ namespace UnityEngine.UI
         private void DoMeshGeneration()
         {
             if (rectTransform != null && rectTransform.rect.width >= 0 && rectTransform.rect.height >= 0)
-                OnPopulateMesh(s_VertexHelper);
+                OnPopulateMesh(s_VertexHelper);//更新顶点信息
             else
                 s_VertexHelper.Clear(); // clear the vertex helper so invalid graphics dont draw.
 
@@ -420,12 +420,12 @@ namespace UnityEngine.UI
             GetComponents(typeof(IMeshModifier), components);
 
             for (var i = 0; i < components.Count; i++)
-                ((IMeshModifier)components[i]).ModifyMesh(s_VertexHelper);
+                ((IMeshModifier)components[i]).ModifyMesh(s_VertexHelper);//若由网格特效，则由特效继续更新顶点信息
 
             ListPool<Component>.Release(components);
 
             s_VertexHelper.FillMesh(workerMesh);
-            canvasRenderer.SetMesh(workerMesh);
+            canvasRenderer.SetMesh(workerMesh);//最终渲染
         }
 
         private void DoLegacyMeshGeneration()
