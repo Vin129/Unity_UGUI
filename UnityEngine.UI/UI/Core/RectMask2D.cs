@@ -133,7 +133,6 @@ namespace UnityEngine.UI
 
         public virtual void PerformClipping()
         {
-            //mark 4/21
             if (ReferenceEquals(Canvas, null))
             {
                 return;
@@ -162,6 +161,7 @@ namespace UnityEngine.UI
                 (renderMode == RenderMode.ScreenSpaceCamera || renderMode == RenderMode.ScreenSpaceOverlay) &&
                 !clipRect.Overlaps(rootCanvasRect, true);
 
+            // 和上次裁剪的矩形比较是否改变
             bool clipRectChanged = clipRect != m_LastClipRectCanvasSpace;
             bool forceClip = m_ForceClip;
 
@@ -170,6 +170,7 @@ namespace UnityEngine.UI
             {
                 if (clipRectChanged || forceClip)
                 {
+                    //设置矩形裁剪框,若无效则禁用
                     clipTarget.SetClipRect(clipRect, validRect);
                 }
 

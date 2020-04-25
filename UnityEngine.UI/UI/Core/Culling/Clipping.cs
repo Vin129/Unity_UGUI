@@ -4,6 +4,9 @@ namespace UnityEngine.UI
 {
     public static class Clipping
     {
+        ///<summary>
+        /// 找出list中最小的矩形，并检测该矩形是否有效（长宽>0）
+        ///</summary>
         public static Rect FindCullAndClipWorldRect(List<RectMask2D> rectMaskParents, out bool validRect)
         {
             if (rectMaskParents.Count == 0)

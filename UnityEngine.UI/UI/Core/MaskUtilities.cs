@@ -6,7 +6,7 @@ namespace UnityEngine.UI
     public class MaskUtilities
     {
         ///<summary>
-        ///调用所有子节点上IClippable组件的剪裁方法。
+        ///调用所有子节点路径上IClippable组件的剪裁方法。
         ///</summary>
         public static void Notify2DMaskStateChanged(Component mask)
         {
@@ -41,7 +41,7 @@ namespace UnityEngine.UI
         }
 
         ///<summary>
-        ///寻找根节点上overridesort的canvas
+        ///寻找父级路径上overridesort的canvas
         ///</summary>
         public static Transform FindRootSortOverrideCanvas(Transform start)
         {
@@ -63,7 +63,7 @@ namespace UnityEngine.UI
         }
 
         ///<summary>
-        ///统计每个根上含mask组件数量代表目前深度。
+        ///统计父级路径上含mask组件数量代表目前深度。
         ///</summary>
         public static int GetStencilDepth(Transform transform, Transform stopAfter)
         {
@@ -114,7 +114,7 @@ namespace UnityEngine.UI
         }
 
         ///<summary>
-        ///获取最近父级节点中在overrideSortingCanvas下的RectMask2D
+        ///获取最近父级路径中在overrideSortingCanvas下的RectMask2D
         ///</summary>
         public static RectMask2D GetRectMaskForClippable(IClippable clippable)
         {
@@ -160,7 +160,7 @@ namespace UnityEngine.UI
 
 
         ///<summary>
-        ///获取所有父级节点中在overrideSortingCanvas下的RectMask2DList
+        ///获取所有父级路径中在overrideSortingCanvas下的RectMask2DList
         ///</summary>
         public static void GetRectMasksForClip(RectMask2D clipper, List<RectMask2D> masks)
         {
