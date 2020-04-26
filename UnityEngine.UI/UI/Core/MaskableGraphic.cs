@@ -7,7 +7,7 @@ namespace UnityEngine.UI
     public abstract class MaskableGraphic : Graphic, IClippable, IMaskable, IMaterialModifier
     {
         [NonSerialized]
-        protected bool m_ShouldRecalculateStencil = true;
+        protected bool m_ShouldRecalculateStencil = true;//控制是否从新计算遮罩深度->改变遮罩材质
 
         [NonSerialized]
         protected Material m_MaskMaterial;
@@ -75,9 +75,11 @@ namespace UnityEngine.UI
             // if we have a enabled Mask component then it will
             // generate the mask material. This is an optimisation
             // it adds some coupling between components though :(
+            // 优化了遮罩处理，如果已经启用了Mask组件，则不必再次做重复的事情
             Mask maskComponent = GetComponent<Mask>();
             if (m_StencilValue > 0 && (maskComponent == null || !maskComponent.IsActive()))
             {
+                //借助StencilMaterial生产一个新的遮罩材质，这里是使用list存储避免重复生成一样的材质
                 var maskMat = StencilMaterial.Add(toUse, (1 << m_StencilValue) - 1, StencilOp.Keep, CompareFunction.Equal, ColorWriteMask.All, (1 << m_StencilValue) - 1, 0);
                 StencilMaterial.Remove(m_MaskMaterial);
                 m_MaskMaterial = maskMat;
@@ -120,6 +122,7 @@ namespace UnityEngine.UI
 
             if (GetComponent<Mask>() != null)
             {
+                // 设置Mask遮罩状态
                 MaskUtilities.NotifyStencilStateChanged(this);
             }
         }

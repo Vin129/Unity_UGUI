@@ -24,6 +24,9 @@ namespace UnityEngine.UI
             ListPool<Component>.Release(components);
         }
 
+        ///<summary>
+        ///执行子路径下所有IMaskable的方法
+        ///</summary>
         public static void NotifyStencilStateChanged(Component mask)
         {
             var components = ListPool<Component>.Get();
