@@ -263,7 +263,7 @@ namespace UnityEngine.UI
 
                 var currentMat = material;
                 for (var i = 0; i < components.Count; i++)
-                    currentMat = (components[i] as IMaterialModifier).GetModifiedMaterial(currentMat);
+                    currentMat = (components[i] as IMaterialModifier).GetModifiedMaterial(currentMat);//这里由IMaterialModifier组件对currentMat进行特效化处理
                 ListPool<Component>.Release(components);
                 return currentMat;
             }
@@ -425,7 +425,7 @@ namespace UnityEngine.UI
             ListPool<Component>.Release(components);
 
             s_VertexHelper.FillMesh(workerMesh);
-            canvasRenderer.SetMesh(workerMesh);//最终渲染
+            canvasRenderer.SetMesh(workerMesh);//设置当canvasRenderer中
         }
 
         private void DoLegacyMeshGeneration()

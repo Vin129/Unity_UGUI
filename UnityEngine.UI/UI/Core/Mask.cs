@@ -118,6 +118,7 @@ namespace UnityEngine.UI
         /// Stencil calculation time!
         public virtual Material GetModifiedMaterial(Material baseMaterial)
         {
+            //mark 4/28
             if (!MaskEnabled())
                 return baseMaterial;
 
