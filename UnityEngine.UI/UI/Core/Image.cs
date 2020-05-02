@@ -235,6 +235,7 @@ namespace UnityEngine.UI
 
         public virtual void OnBeforeSerialize() {}
 
+        //反序列化时
         public virtual void OnAfterDeserialize()
         {
             if (m_FillOrigin < 0)
@@ -1136,6 +1137,7 @@ namespace UnityEngine.UI
 
         public virtual int layoutPriority { get { return 0; } }
 
+        //射线广播响应接口，判断Image是否可以有效接收射线
         public virtual bool IsRaycastLocationValid(Vector2 screenPoint, Camera eventCamera)
         {
             if (alphaHitTestMinimumThreshold <= 0)

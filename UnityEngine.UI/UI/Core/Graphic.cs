@@ -534,6 +534,7 @@ namespace UnityEngine.UI
         /// Make the Graphic have the native size of its content.
         /// </summary>
         public virtual void SetNativeSize() {}
+        //
         public virtual bool Raycast(Vector2 sp, Camera eventCamera)
         {
             if (!isActiveAndEnabled)
