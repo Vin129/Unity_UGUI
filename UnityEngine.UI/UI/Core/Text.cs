@@ -452,17 +452,18 @@ namespace UnityEngine.UI
             Vector2 extents = rectTransform.rect.size;
 
             var settings = GetGenerationSettings(extents);
-            cachedTextGenerator.PopulateWithErrors(text, settings, gameObject);
+            cachedTextGenerator.PopulateWithErrors(text, settings, gameObject);//根据字符串和FontData中的设置计算顶点数据
 
             // Apply the offset to the vertices
             IList<UIVertex> verts = cachedTextGenerator.verts;
-            float unitsPerPixel = 1 / pixelsPerUnit;
+            float unitsPerPixel = 1 / pixelsPerUnit; //m_FontData.fontSize/font.fontSize 字号放大缩小字体的具体实现来自这里，改变顶点位置
             //Last 4 verts are always a new line... (\n)
             int vertCount = verts.Count - 4;
 
             Vector2 roundingOffset = new Vector2(verts[0].position.x, verts[0].position.y) * unitsPerPixel;
-            roundingOffset = PixelAdjustPoint(roundingOffset) - roundingOffset;
+            roundingOffset = PixelAdjustPoint(roundingOffset) - roundingOffset; //计算距离矩形边框的偏移量
             toFill.Clear();
+            //设置顶点数据
             if (roundingOffset != Vector2.zero)
             {
                 for (int i = 0; i < vertCount; ++i)
