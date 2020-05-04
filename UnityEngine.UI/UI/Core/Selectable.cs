@@ -21,7 +21,7 @@ namespace UnityEngine.UI
         // Selection state
 
         // List of all the selectable objects currently active in the scene
-        private static List<Selectable> s_List = new List<Selectable>();
+        private static List<Selectable> s_List = new List<Selectable>();//静态列表来获取方向目标
         public static List<Selectable> allSelectables { get { return s_List; } }
 
         // Navigation information.
@@ -186,6 +186,7 @@ namespace UnityEngine.UI
                 state = SelectionState.Highlighted;
 
             m_CurrentSelectionState = state;
+             //状态变化的参数变化以及过渡(例如Highlighted 颜色需要变为highlightedColor所设置的颜色)
             InternalEvaluateAndTransitionToSelectionState(true);
         }
 
@@ -266,6 +267,7 @@ namespace UnityEngine.UI
             }
         }
 
+        //状态过渡处理
         protected virtual void DoStateTransition(SelectionState state, bool instant)
         {
             Color tintColor;
@@ -329,6 +331,7 @@ namespace UnityEngine.UI
         // Selection logic
 
         // Find the next selectable object in the specified world-space direction.
+        //导航满足方向条件时，根据世界坐标遍历List<Selectable>寻找下一个可选择的对象
         public Selectable FindSelectable(Vector3 dir)
         {
             dir = dir.normalized;
