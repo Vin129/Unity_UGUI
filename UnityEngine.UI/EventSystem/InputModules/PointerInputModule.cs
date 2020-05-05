@@ -80,10 +80,11 @@ namespace UnityEngine.EventSystems
             @to.pointerEnter = @from.pointerEnter;
         }
 
+        //v 检查鼠标按键状态
         protected PointerEventData.FramePressState StateForMouseButton(int buttonId)
         {
-            var pressed = input.GetMouseButtonDown(buttonId);
-            var released = input.GetMouseButtonUp(buttonId);
+            var pressed = input.GetMouseButtonDown(buttonId); //按下
+            var released = input.GetMouseButtonUp(buttonId); //抬起
             if (pressed && released)
                 return PointerEventData.FramePressState.PressedAndReleased;
             if (pressed)
@@ -187,6 +188,7 @@ namespace UnityEngine.EventSystems
             return GetMousePointerEventData(0);
         }
 
+        //v2 获取鼠标状态
         protected virtual MouseState GetMousePointerEventData(int id)
         {
             // Populate the left button...
@@ -228,6 +230,7 @@ namespace UnityEngine.EventSystems
             CopyFromTo(leftData, middleData);
             middleData.button = PointerEventData.InputButton.Middle;
 
+            //设置左中右三个按键的信息 m_TrackedButtons
             m_MouseState.SetButtonState(PointerEventData.InputButton.Left, StateForMouseButton(0), leftData);
             m_MouseState.SetButtonState(PointerEventData.InputButton.Right, StateForMouseButton(1), rightData);
             m_MouseState.SetButtonState(PointerEventData.InputButton.Middle, StateForMouseButton(2), middleData);

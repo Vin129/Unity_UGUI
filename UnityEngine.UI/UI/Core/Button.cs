@@ -55,6 +55,8 @@ namespace UnityEngine.UI
                 return;
 
             DoStateTransition(SelectionState.Pressed, false);
+            //因为Selectable中已经写了OnPointerDown、OnPointerUp时对应的状态变化了
+            //但是对于Submit并没有结束的判断事件，所以依靠协程来执行状态变化
             StartCoroutine(OnFinishSubmit());
         }
 

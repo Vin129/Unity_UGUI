@@ -219,6 +219,9 @@ namespace UnityEngine.EventSystems
             get { return s_CancelHandler; }
         }
 
+        ///<summary>
+        ///获取root的父级路径
+        ///</summary>
         private static void GetEventChain(GameObject root, IList<Transform> eventChain)
         {
             eventChain.Clear();

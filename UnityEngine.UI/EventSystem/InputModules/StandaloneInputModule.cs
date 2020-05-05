@@ -199,7 +199,8 @@ namespace UnityEngine.EventSystems
             base.DeactivateModule();
             ClearSelection();
         }
-
+        
+        //v1 EventSystem Update 不断检测
         public override void Process()
         {
             if (!eventSystem.isFocused && ShouldIgnoreEventsOnNoFocus())
@@ -454,18 +455,19 @@ namespace UnityEngine.EventSystems
 
         /// <summary>
         /// Process all mouse events.
+        /// v2 鼠标事件检查,获取鼠标左中右按键信息
         /// </summary>
         protected void ProcessMouseEvent(int id)
         {
-            var mouseData = GetMousePointerEventData(id);
+            var mouseData = GetMousePointerEventData(id);//实际上这个id也没有用，每次都是获取左中右三个按键的信息
             var leftButtonData = mouseData.GetButtonState(PointerEventData.InputButton.Left).eventData;
 
             m_CurrentFocusedGameObject = leftButtonData.buttonData.pointerCurrentRaycast.gameObject;
 
             // Process the first mouse button fully
-            ProcessMousePress(leftButtonData);
-            ProcessMove(leftButtonData.buttonData);
-            ProcessDrag(leftButtonData.buttonData);
+            ProcessMousePress(leftButtonData);//执行鼠标按压的过程(根据buttonState来判断并执行 PointerDown PointerUp PointerClick Drop EndDrag 事件)
+            ProcessMove(leftButtonData.buttonData);//执行鼠标移动过程(根据pointerEvent判断并执行 PointerEnter PointerExit 事件)
+            ProcessDrag(leftButtonData.buttonData);//执行拖拽过程(根据pointerEvent判断并执行 BeginDrag Drag PointerUp 事件)
 
             // Now process right / middle clicks
             ProcessMousePress(mouseData.GetButtonState(PointerEventData.InputButton.Right).eventData);
@@ -475,6 +477,7 @@ namespace UnityEngine.EventSystems
 
             if (!Mathf.Approximately(leftButtonData.buttonData.scrollDelta.sqrMagnitude, 0.0f))
             {
+                //滚轮控制的滚动事件
                 var scrollHandler = ExecuteEvents.GetEventHandler<IScrollHandler>(leftButtonData.buttonData.pointerCurrentRaycast.gameObject);
                 ExecuteEvents.ExecuteHierarchy(scrollHandler, leftButtonData.buttonData, ExecuteEvents.scrollHandler);
             }
@@ -492,6 +495,7 @@ namespace UnityEngine.EventSystems
 
         /// <summary>
         /// Process the current mouse press.
+        /// v 鼠标点击过程检测
         /// </summary>
         protected void ProcessMousePress(MouseButtonEventData data)
         {
@@ -499,6 +503,7 @@ namespace UnityEngine.EventSystems
             var currentOverGo = pointerEvent.pointerCurrentRaycast.gameObject;
 
             // PointerDown notification
+            //当按下时
             if (data.PressedThisFrame())
             {
                 pointerEvent.eligibleForClick = true;
@@ -516,6 +521,7 @@ namespace UnityEngine.EventSystems
                 var newPressed = ExecuteEvents.ExecuteHierarchy(currentOverGo, pointerEvent, ExecuteEvents.pointerDownHandler);
 
                 // didnt find a press handler... search for a click handler
+                //如果自身及父级路径下没有IPointerDownHandler，则检查该路径下的IPointerClickHandler。
                 if (newPressed == null)
                     newPressed = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
 
@@ -545,7 +551,7 @@ namespace UnityEngine.EventSystems
 
                 // Save the drag handler as well
                 pointerEvent.pointerDrag = ExecuteEvents.GetEventHandler<IDragHandler>(currentOverGo);
-
+                //当存在IDragHandler时，先触发 initializePotentialDrag 事件 这个事件在BeginDrag之前
                 if (pointerEvent.pointerDrag != null)
                     ExecuteEvents.Execute(pointerEvent.pointerDrag, pointerEvent, ExecuteEvents.initializePotentialDrag);
 
@@ -553,9 +559,11 @@ namespace UnityEngine.EventSystems
             }
 
             // PointerUp notification
+            //当离开时
             if (data.ReleasedThisFrame())
             {
                 // Debug.Log("Executing pressup on: " + pointer.pointerPress);
+                // 最先执行PointerUp事件
                 ExecuteEvents.Execute(pointerEvent.pointerPress, pointerEvent, ExecuteEvents.pointerUpHandler);
 
                 // Debug.Log("KeyCode: " + pointer.eventData.keyCode);
@@ -566,10 +574,12 @@ namespace UnityEngine.EventSystems
                 // PointerClick and Drop events
                 if (pointerEvent.pointerPress == pointerUpHandler && pointerEvent.eligibleForClick)
                 {
+                    // 其次才执行PointerClick事件
                     ExecuteEvents.Execute(pointerEvent.pointerPress, pointerEvent, ExecuteEvents.pointerClickHandler);
                 }
                 else if (pointerEvent.pointerDrag != null && pointerEvent.dragging)
                 {
+                    // Drop 事件会在 EndDrag 之前执行
                     ExecuteEvents.ExecuteHierarchy(currentOverGo, pointerEvent, ExecuteEvents.dropHandler);
                 }
 
@@ -577,6 +587,7 @@ namespace UnityEngine.EventSystems
                 pointerEvent.pointerPress = null;
                 pointerEvent.rawPointerPress = null;
 
+                // 最后执行EndDrag 事件
                 if (pointerEvent.pointerDrag != null && pointerEvent.dragging)
                     ExecuteEvents.Execute(pointerEvent.pointerDrag, pointerEvent, ExecuteEvents.endDragHandler);
 
