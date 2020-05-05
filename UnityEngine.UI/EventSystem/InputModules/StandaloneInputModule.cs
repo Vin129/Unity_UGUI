@@ -205,9 +205,10 @@ namespace UnityEngine.EventSystems
         {
             if (!eventSystem.isFocused && ShouldIgnoreEventsOnNoFocus())
                 return;
-
+            //向当前选中的目标执行UpdateSelectedHandler,并返回是否执行了
             bool usedEvent = SendUpdateEventToSelectedObject();
 
+            //若用导航的情况会执行MoveHandler与SubmitHandler,当执行成功某一项时停止
             if (eventSystem.sendNavigationEvents)
             {
                 if (!usedEvent)
@@ -216,8 +217,8 @@ namespace UnityEngine.EventSystems
                 if (!usedEvent)
                     SendSubmitEventToSelectedObject();
             }
-
-            // touch needs to take precedence because of the mouse emulation layer
+            //以上部分是用来检测键盘输入的部分，例如使用键盘方向键选择按钮、使用ENTER键执行Submit。
+            //接着开始先进行触摸的事件检测，如果不存在触摸，则会进行鼠标的事件检测
             if (!ProcessTouchEvents() && input.mousePresent)
                 ProcessMouseEvent();
         }
