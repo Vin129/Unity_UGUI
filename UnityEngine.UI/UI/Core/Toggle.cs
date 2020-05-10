@@ -12,14 +12,14 @@ namespace UnityEngine.UI
     [RequireComponent(typeof(RectTransform))]
     public class Toggle : Selectable, IPointerClickHandler, ISubmitHandler, ICanvasElement
     {
-        public enum ToggleTransition
+        public enum ToggleTransition //过渡模式
         {
             None,
             Fade
         }
 
         [Serializable]
-        public class ToggleEvent : UnityEvent<bool>
+        public class ToggleEvent : UnityEvent<bool> 
         {}
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace UnityEngine.UI
         /// <summary>
         /// Allow for delegate-based subscriptions for faster events than 'eventReceiver', and allowing for multiple receivers.
         /// </summary>
-        public ToggleEvent onValueChanged = new ToggleEvent();
+        public ToggleEvent onValueChanged = new ToggleEvent(); // 监听事件
 
         // Whether the toggle is on
         [FormerlySerializedAs("m_IsActive")]
