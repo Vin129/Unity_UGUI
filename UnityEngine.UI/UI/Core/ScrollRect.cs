@@ -13,14 +13,17 @@ namespace UnityEngine.UI
     {
         public enum MovementType
         {
+            //无限制的，即没有边缘
             Unrestricted, // Unrestricted movement -- can scroll forever
+            //弹性，让边缘有个回弹的效果
             Elastic, // Restricted but flexible -- can go past the edges, but springs back in place
+            //强制无回弹，到达边缘即停止
             Clamped, // Restricted movement where it's not possible to go past the edges
         }
 
         public enum ScrollbarVisibility
         {
-            Permanent,
+            Permanent,//长期不变，不会受到其他参数的影响
             AutoHide,
             AutoHideAndExpandViewport,
         }
@@ -50,14 +53,17 @@ namespace UnityEngine.UI
 
         [SerializeField]
         private bool m_Inertia = true;
+        //惯性
         public bool inertia { get { return m_Inertia; } set { m_Inertia = value; } }
 
         [SerializeField]
         private float m_DecelerationRate = 0.135f; // Only used when inertia is enabled
+        //减速速率
         public float decelerationRate { get { return m_DecelerationRate; } set { m_DecelerationRate = value; } }
 
         [SerializeField]
         private float m_ScrollSensitivity = 1.0f;
+        //滚轮敏感度
         public float scrollSensitivity { get { return m_ScrollSensitivity; } set { m_ScrollSensitivity = value; } }
 
         [SerializeField]
@@ -274,6 +280,7 @@ namespace UnityEngine.UI
             Vector2 delta = data.scrollDelta;
             // Down is positive for scroll events, while in UI system up is positive.
             delta.y *= -1;
+            //滚轮交互支持水平与垂直同时存在的情况
             if (vertical && !horizontal)
             {
                 if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
@@ -286,9 +293,10 @@ namespace UnityEngine.UI
                     delta.x = delta.y;
                 delta.y = 0;
             }
-
+            //根据滚轮值变化计算内容区域位置变化
             Vector2 position = m_Content.anchoredPosition;
             position += delta * m_ScrollSensitivity;
+            //如果是强制模式下,确保不会使内容区域超出边界
             if (m_MovementType == MovementType.Clamped)
                 position += CalculateOffset(position - m_Content.anchoredPosition);
 
@@ -300,7 +308,7 @@ namespace UnityEngine.UI
         {
             if (eventData.button != PointerEventData.InputButton.Left)
                 return;
-
+	        //速度值归零
             m_Velocity = Vector2.zero;
         }
 
@@ -311,12 +319,15 @@ namespace UnityEngine.UI
 
             if (!IsActive())
                 return;
-
+            //更新两个包围盒的数据
             UpdateBounds();
 
             m_PointerStartLocalCursor = Vector2.zero;
+            //记录由屏幕坐标转换为视图区域下的起始位置坐标
             RectTransformUtility.ScreenPointToLocalPointInRectangle(viewRect, eventData.position, eventData.pressEventCamera, out m_PointerStartLocalCursor);
+            //记录内容区域当前坐标
             m_ContentStartPosition = m_Content.anchoredPosition;
+            //标记正在进行拖拽
             m_Dragging = true;
         }
 
@@ -337,25 +348,27 @@ namespace UnityEngine.UI
                 return;
 
             Vector2 localCursor;
+            //获取当前触点位于视图区域中的坐标
             if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(viewRect, eventData.position, eventData.pressEventCamera, out localCursor))
                 return;
-
             UpdateBounds();
-
+            //与起始坐标求插值
             var pointerDelta = localCursor - m_PointerStartLocalCursor;
+            //计算拖拽变化后的区域位置
             Vector2 position = m_ContentStartPosition + pointerDelta;
 
-            // Offset to get content into place in the view.
+            // 计算内容区域在视图区域下是否需要偏移量,即是否有超出边界的情况
             Vector2 offset = CalculateOffset(position - m_Content.anchoredPosition);
             position += offset;
             if (m_MovementType == MovementType.Elastic)
             {
+                //当处于弹性模式下时,会根据偏移量增加一个弹性势能让内容区域不会全部处于视图区域的外部
                 if (offset.x != 0)
-                    position.x = position.x - RubberDelta(offset.x, m_ViewBounds.size.x);
+                    position.x = position.x - RubberDelta(offset.x, m_ViewBounds.size.x);//这里随着offset值越大势能越强
                 if (offset.y != 0)
                     position.y = position.y - RubberDelta(offset.y, m_ViewBounds.size.y);
             }
-
+            //更新内容区域坐标
             SetContentAnchoredPosition(position);
         }
 
@@ -373,21 +386,24 @@ namespace UnityEngine.UI
             }
         }
 
+        //每帧的最后做一些判断处理
         protected virtual void LateUpdate()
         {
             if (!m_Content)
                 return;
 
-            EnsureLayoutHasRebuilt();
-            UpdateBounds();
+            EnsureLayoutHasRebuilt();//确保布局刷新
+            UpdateBounds();//更新两个包围盒的数据
             float deltaTime = Time.unscaledDeltaTime;
+            //计算内容盒对于视图盒的偏移值，是否存在超出边界的部分
             Vector2 offset = CalculateOffset(Vector2.zero);
+            //在拖拽结束之后判断移动模式，进行位置补差操作（弹性模式/惯性作用）
             if (!m_Dragging && (offset != Vector2.zero || m_Velocity != Vector2.zero))
             {
                 Vector2 position = m_Content.anchoredPosition;
                 for (int axis = 0; axis < 2; axis++)
                 {
-                    // Apply spring physics if movement is elastic and content has an offset from the view.
+                    //在弹性模式下且存在偏移时，进行回弹操作
                     if (m_MovementType == MovementType.Elastic && offset[axis] != 0)
                     {
                         float speed = m_Velocity[axis];
@@ -396,7 +412,7 @@ namespace UnityEngine.UI
                             speed = 0;
                         m_Velocity[axis] = speed;
                     }
-                    // Else move content according to velocity with deceleration applied.
+                    //在惯性下，对内容区域进行减速运动
                     else if (m_Inertia)
                     {
                         m_Velocity[axis] *= Mathf.Pow(m_DecelerationRate, deltaTime);
@@ -404,13 +420,12 @@ namespace UnityEngine.UI
                             m_Velocity[axis] = 0;
                         position[axis] += m_Velocity[axis] * deltaTime;
                     }
-                    // If we have neither elaticity or friction, there shouldn't be any velocity.
                     else
                     {
                         m_Velocity[axis] = 0;
                     }
                 }
-
+                //强制模式下则不需过渡直接回正偏移
                 if (m_MovementType == MovementType.Clamped)
                 {
                     offset = CalculateOffset(position - m_Content.anchoredPosition);
@@ -419,7 +434,7 @@ namespace UnityEngine.UI
 
                 SetContentAnchoredPosition(position);
             }
-
+            //当正在发生拖拽时且是惯性状态下，需要计算拖拽速度
             if (m_Dragging && m_Inertia)
             {
                 Vector3 newVelocity = (m_Content.anchoredPosition - m_PrevPosition) / deltaTime;
@@ -428,8 +443,10 @@ namespace UnityEngine.UI
 
             if (m_ViewBounds != m_PrevViewBounds || m_ContentBounds != m_PrevContentBounds || m_Content.anchoredPosition != m_PrevPosition)
             {
+                //更新Scrollbar的value值
                 UpdateScrollbars(offset);
                 UISystemProfilerApi.AddMarker("ScrollRect.value", this);
+                //执行位置变化的监听事件
                 m_OnValueChanged.Invoke(normalizedPosition);
                 UpdatePrevData();
             }
@@ -520,16 +537,17 @@ namespace UnityEngine.UI
         {
             EnsureLayoutHasRebuilt();
             UpdateBounds();
-            // How much the content is larger than the view.
+            // 计算scrollbar value值控制的长度大小，即 内容区域大于试图区域的大小
             float hiddenLength = m_ContentBounds.size[axis] - m_ViewBounds.size[axis];
-            // Where the position of the lower left corner of the content bounds should be, in the space of the view.
+            // 计算内容盒最小坐标改变多少
             float contentBoundsMinPosition = m_ViewBounds.min[axis] - value * hiddenLength;
-            // The new content localPosition, in the space of the view.
+            // 计算出内容区域的最新本地坐标
             float newLocalPosition = m_Content.localPosition[axis] + contentBoundsMinPosition - m_ContentBounds.min[axis];
 
             Vector3 localPosition = m_Content.localPosition;
             if (Mathf.Abs(localPosition[axis] - newLocalPosition) > 0.01f)
             {
+                //更新坐标位置
                 localPosition[axis] = newLocalPosition;
                 m_Content.localPosition = localPosition;
                 m_Velocity[axis] = 0;
@@ -707,8 +725,9 @@ namespace UnityEngine.UI
             Vector3 contentSize = m_ContentBounds.size;
             Vector3 contentPos = m_ContentBounds.center;
             var contentPivot = m_Content.pivot;
+            //判断内容区域是否大于试图区域（只有大于情况下才会有滚动），若不大于，则对内容盒做试图盒变换
             AdjustBounds(ref m_ViewBounds, ref contentPivot, ref contentSize, ref contentPos);
-            m_ContentBounds.size = contentSize;
+            m_ContentBounds.size = contentSize; 
             m_ContentBounds.center = contentPos;
 
             if (movementType == MovementType.Clamped)
@@ -770,15 +789,19 @@ namespace UnityEngine.UI
         }
 
         private readonly Vector3[] m_Corners = new Vector3[4];
+        ///<summary>
+        ///生成content本地坐标下的包围盒 
+        ///</summary>
         private Bounds GetBounds()
         {
             if (m_Content == null)
                 return new Bounds();
-            m_Content.GetWorldCorners(m_Corners);
-            var viewWorldToLocalMatrix = viewRect.worldToLocalMatrix;
+            m_Content.GetWorldCorners(m_Corners);//获取Content顶点世界坐标
+            var viewWorldToLocalMatrix = viewRect.worldToLocalMatrix;//世界坐标转本地坐标矩阵
             return InternalGetBounds(m_Corners, ref viewWorldToLocalMatrix);
         }
 
+        //生成content本地坐标下的包围盒 
         internal static Bounds InternalGetBounds(Vector3[] corners, ref Matrix4x4 viewWorldToLocalMatrix)
         {
             var vMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
@@ -786,13 +809,13 @@ namespace UnityEngine.UI
 
             for (int j = 0; j < 4; j++)
             {
-                Vector3 v = viewWorldToLocalMatrix.MultiplyPoint3x4(corners[j]);
+                Vector3 v = viewWorldToLocalMatrix.MultiplyPoint3x4(corners[j]);//顶点世界坐标转本地坐标矩阵
                 vMin = Vector3.Min(v, vMin);
                 vMax = Vector3.Max(v, vMax);
             }
 
             var bounds = new Bounds(vMin, Vector3.zero);
-            bounds.Encapsulate(vMax);
+            bounds.Encapsulate(vMax);//包围盒延伸至最大坐标范围
             return bounds;
         }
 

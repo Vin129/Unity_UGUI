@@ -296,9 +296,9 @@ namespace UnityEngine.UI
             if (!MayDrag(eventData))
                 return;
 
-            base.OnPointerDown(eventData);
-            isPointerDownAndNotDragging = true;
-            m_PointerDownRepeat = StartCoroutine(ClickRepeat(eventData));
+            base.OnPointerDown(eventData);//执行Selectable基类方法
+            isPointerDownAndNotDragging = true; //标记状态
+            m_PointerDownRepeat = StartCoroutine(ClickRepeat(eventData)); //启动变化携程
         }
 
         protected IEnumerator ClickRepeat(PointerEventData eventData)
@@ -308,8 +308,10 @@ namespace UnityEngine.UI
                 if (!RectTransformUtility.RectangleContainsScreenPoint(m_HandleRect, eventData.position, eventData.enterEventCamera))
                 {
                     Vector2 localMousePos;
+                    //获取鼠标点击位于HandleRect的本地坐标
                     if (RectTransformUtility.ScreenPointToLocalPointInRectangle(m_HandleRect, eventData.position, eventData.pressEventCamera, out localMousePos))
                     {
+                        //根据轴变化value值,频率取决于size大小
                         var axisCoordinate = axis == 0 ? localMousePos.x : localMousePos.y;
                         if (axisCoordinate < 0)
                             value -= size;
