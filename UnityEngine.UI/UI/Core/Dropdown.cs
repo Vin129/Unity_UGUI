@@ -138,9 +138,9 @@ namespace UnityEngine.UI
         public DropdownEvent onValueChanged { get { return m_OnValueChanged; } set { m_OnValueChanged = value; } }
 
         private GameObject m_Dropdown;
-        private GameObject m_Blocker;
+        private GameObject m_Blocker;//遮挡物响应点击空白除关闭
         private List<DropdownItem> m_Items = new List<DropdownItem>();
-        private TweenRunner<FloatTween> m_AlphaTweenRunner;
+        private TweenRunner<FloatTween> m_AlphaTweenRunner; //透明补间动画模块
         private bool validTemplate = false;
 
         private static OptionData s_NoOptionData = new OptionData();
@@ -177,7 +177,7 @@ namespace UnityEngine.UI
             #endif
 
             m_AlphaTweenRunner = new TweenRunner<FloatTween>();
-            m_AlphaTweenRunner.Init(this);
+            m_AlphaTweenRunner.Init(this); // 初始化渐变模块
 
             if (m_CaptionImage)
                 m_CaptionImage.enabled = (m_CaptionImage.sprite != null);
@@ -199,6 +199,7 @@ namespace UnityEngine.UI
 
         #endif
 
+        //更新当前选项的信息至captionText、captionImage
         public void RefreshShownValue()
         {
             OptionData data = s_NoOptionData;
@@ -249,7 +250,8 @@ namespace UnityEngine.UI
             options.Clear();
             RefreshShownValue();
         }
-
+        
+        //模板初始化：检测并设置模板，初始化模板绑定相关组件并调整模板UI层级，若没有通过检查则模板标记为不可用状态。
         private void SetupTemplate()
         {
             validTemplate = false;
@@ -291,16 +293,16 @@ namespace UnityEngine.UI
                 templateGo.SetActive(false);
                 return;
             }
-
+            //获取模板中的Item并添加DropdownItem组件
             DropdownItem item = itemToggle.gameObject.AddComponent<DropdownItem>();
-            item.text = m_ItemText;
-            item.image = m_ItemImage;
-            item.toggle = itemToggle;
-            item.rectTransform = (RectTransform)itemToggle.transform;
+            item.text = m_ItemText; // 绑定text
+            item.image = m_ItemImage;// 绑定image
+            item.toggle = itemToggle;// 绑定toggle
+            item.rectTransform = (RectTransform)itemToggle.transform; // 绑定transform
 
             Canvas popupCanvas = GetOrAddComponent<Canvas>(templateGo);
             popupCanvas.overrideSorting = true;
-            popupCanvas.sortingOrder = 30000;
+            popupCanvas.sortingOrder = 30000; // 让列表模板处于UI的最高层
 
             GetOrAddComponent<GraphicRaycaster>(templateGo);
             GetOrAddComponent<CanvasGroup>(templateGo);
@@ -345,9 +347,12 @@ namespace UnityEngine.UI
             if (!IsActive() || !IsInteractable() || m_Dropdown != null)
                 return;
 
+            //初始状态时validTemplate为false来触发对于列表模板的初始化设置
             if (!validTemplate)
             {
+                //模板初始化方法：检测并设置模板，初始化模板绑定相关组件并调整模板UI层级，若没有通过检查则模板标记为不可用状态。
                 SetupTemplate();
+                //若检测不通过则无法正常显示下拉列表
                 if (!validTemplate)
                     return;
             }
@@ -357,22 +362,27 @@ namespace UnityEngine.UI
             gameObject.GetComponentsInParent(false, list);
             if (list.Count == 0)
                 return;
+            //获取父级路径下最近的canvas
             Canvas rootCanvas = list[0];
             ListPool<Canvas>.Release(list);
 
+            //显示模板准备复制列表
             m_Template.gameObject.SetActive(true);
 
             // Instantiate the drop-down template
+            //复制列表模板
             m_Dropdown = CreateDropdownList(m_Template.gameObject);
+            //进行改名
             m_Dropdown.name = "Dropdown List";
             m_Dropdown.SetActive(true);
 
             // Make drop-down RectTransform have same values as original.
+            // 设置新的列表模板的父级
             RectTransform dropdownRectTransform = m_Dropdown.transform as RectTransform;
             dropdownRectTransform.SetParent(m_Template.transform.parent, false);
 
             // Instantiate the drop-down list items
-
+            // 创建列表Item
             // Find the dropdown item and disable it.
             DropdownItem itemTemplate = m_Dropdown.GetComponentInChildren<DropdownItem>();
 
@@ -385,29 +395,35 @@ namespace UnityEngine.UI
             Rect itemTemplateRect = itemTemplate.rectTransform.rect;
 
             // Calculate the visual offset between the item's edges and the background's edges
+            //计算Item与背景边界的偏移量
             Vector2 offsetMin = itemTemplateRect.min - dropdownContentRect.min + (Vector2)itemTemplate.rectTransform.localPosition;
             Vector2 offsetMax = itemTemplateRect.max - dropdownContentRect.max + (Vector2)itemTemplate.rectTransform.localPosition;
             Vector2 itemSize = itemTemplateRect.size;
 
+            //清空DropdownItem List 准备开始选项Itme的创建
             m_Items.Clear();
 
             Toggle prev = null;
             for (int i = 0; i < options.Count; ++i)
             {
                 OptionData data = options[i];
+                //创建Item
                 DropdownItem item = AddItem(data, value == i, itemTemplate, m_Items);
                 if (item == null)
                     continue;
 
                 // Automatically set up a toggle state change listener
+                // 设置toggle初始状态以及注册事件监听
                 item.toggle.isOn = value == i;
                 item.toggle.onValueChanged.AddListener(x => OnSelectItem(item.toggle));
 
                 // Select current option
+                //标记当前选项
                 if (item.toggle.isOn)
                     item.toggle.Select();
 
                 // Automatically set up explicit navigation
+                // 设置Item的导航
                 if (prev != null)
                 {
                     Navigation prevNav = prev.navigation;
@@ -427,10 +443,12 @@ namespace UnityEngine.UI
             }
 
             // Reposition all items now that all of them have been added
+            // 计算内容区域的高度
             Vector2 sizeDelta = contentRectTransform.sizeDelta;
             sizeDelta.y = itemSize.y * m_Items.Count + offsetMin.y - offsetMax.y;
             contentRectTransform.sizeDelta = sizeDelta;
 
+            //计算是否有额外空区域（当内容区域小于列表本身的区域时调整列表大小）
             float extraSpace = dropdownRectTransform.rect.height - contentRectTransform.rect.height;
             if (extraSpace > 0)
                 dropdownRectTransform.sizeDelta = new Vector2(dropdownRectTransform.sizeDelta.x, dropdownRectTransform.sizeDelta.y - extraSpace);
@@ -438,6 +456,7 @@ namespace UnityEngine.UI
             // Invert anchoring and position if dropdown is partially or fully outside of canvas rect.
             // Typically this will have the effect of placing the dropdown above the button instead of below,
             // but it works as inversion regardless of initial setup.
+            // 当列表处于canvas外部时，将其按坐标轴进行翻转
             Vector3[] corners = new Vector3[4];
             dropdownRectTransform.GetWorldCorners(corners);
 
@@ -469,12 +488,14 @@ namespace UnityEngine.UI
             }
 
             // Fade in the popup
+            // 下拉列表渐出效果
             AlphaFadeList(0.15f, 0f, 1f);
 
             // Make drop-down template and item template inactive
+            // 隐藏模板
             m_Template.gameObject.SetActive(false);
             itemTemplate.gameObject.SetActive(false);
-
+            // 创建拦截模板,用于监听点击事件来隐藏下拉列表,层级会低于下拉列表(2999)
             m_Blocker = CreateBlocker(rootCanvas);
         }
 
