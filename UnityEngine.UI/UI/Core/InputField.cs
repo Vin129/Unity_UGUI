@@ -28,18 +28,19 @@ namespace UnityEngine.UI
         ILayoutElement
     {
         // Setting the content type acts as a shortcut for setting a combination of InputType, CharacterValidation, LineType, and TouchScreenKeyboardType
+        // 内容类型
         public enum ContentType
         {
-            Standard,
-            Autocorrected,
-            IntegerNumber,
-            DecimalNumber,
-            Alphanumeric,
-            Name,
-            EmailAddress,
-            Password,
-            Pin,
-            Custom
+            Standard, //标准
+            Autocorrected, //自动更正
+            IntegerNumber, //整数
+            DecimalNumber, //小数
+            Alphanumeric, // 字母数字
+            Name, //名字，不包含数字符号
+            EmailAddress, // 邮箱地址
+            Password, // 密码
+            Pin, //整数密码
+            Custom //自定义
         }
 
         public enum InputType
@@ -563,21 +564,23 @@ namespace UnityEngine.UI
             if (m_CachedInputRenderer != null)
                 m_CachedInputRenderer.SetMaterial(m_TextComponent.GetModifiedMaterial(Graphic.defaultGraphicMaterial), Texture2D.whiteTexture);
 
+            //向Text组件注册事件监听，主要当Graphic进行顶点与材质的重建标记时会执行相应的监听事件
             if (m_TextComponent != null)
             {
                 m_TextComponent.RegisterDirtyVerticesCallback(MarkGeometryAsDirty);
                 m_TextComponent.RegisterDirtyVerticesCallback(UpdateLabel);
                 m_TextComponent.RegisterDirtyMaterialCallback(UpdateCaretMaterial);
-                UpdateLabel();
+                UpdateLabel();//更新文本
             }
         }
 
         protected override void OnDisable()
         {
-            // the coroutine will be terminated, so this will ensure it restarts when we are next activated
+            // 关闭携程
             m_BlinkCoroutine = null;
-
+            //将各种属性做无效处理
             DeactivateInputField();
+            //注销Text中的事件监听
             if (m_TextComponent != null)
             {
                 m_TextComponent.UnregisterDirtyVerticesCallback(MarkGeometryAsDirty);
@@ -586,10 +589,10 @@ namespace UnityEngine.UI
             }
             CanvasUpdateRegistry.UnRegisterCanvasElementForRebuild(this);
 
-            // Clear needs to be called otherwise sync never happens as the object is disabled.
             if (m_CachedInputRenderer != null)
                 m_CachedInputRenderer.Clear();
 
+            //清除网格
             if (m_Mesh != null)
                 DestroyImmediate(m_Mesh);
             m_Mesh = null;
@@ -787,10 +790,12 @@ namespace UnityEngine.UI
                 return;
             }
 
+            //获取输入信息
             string val = m_Keyboard.text;
 
             if (m_Text != val)
             {
+                //只读情况则无法改变输入内容
                 if (m_ReadOnly)
                 {
                     m_Keyboard.text = m_Text;
@@ -805,16 +810,17 @@ namespace UnityEngine.UI
 
                         if (c == '\r' || (int)c == 3)
                             c = '\n';
-
+                        //验证输入内容
                         if (onValidateInput != null)
                             c = onValidateInput(m_Text, m_Text.Length, c);
                         else if (characterValidation != CharacterValidation.None)
-                            c = Validate(m_Text, m_Text.Length, c);
-
+                            c = Validate(m_Text, m_Text.Length, c);//默认的验证方法
+                        
+                        //限制行时当存在换行情况则停止更新
                         if (lineType == LineType.MultiLineSubmit && c == '\n')
                         {
                             m_Keyboard.text = m_Text;
-
+                            
                             OnDeselect(null);
                             return;
                         }
@@ -822,7 +828,7 @@ namespace UnityEngine.UI
                         if (c != 0)
                             m_Text += c;
                     }
-
+                    //字数限制的情况进行切割
                     if (characterLimit > 0 && m_Text.Length > characterLimit)
                         m_Text = m_Text.Substring(0, characterLimit);
 
@@ -840,6 +846,7 @@ namespace UnityEngine.UI
                     if (m_Text != val)
                         m_Keyboard.text = m_Text;
 
+                    //执行事件并更新文本
                     SendOnValueChangedAndUpdateLabel();
                 }
             }
@@ -848,12 +855,12 @@ namespace UnityEngine.UI
                 UpdateCaretFromKeyboard();
             }
 
-
+            //当键盘输入完毕时，执行Deselect,会关闭键盘并执行编辑完成的事件
             if (m_Keyboard.done)
             {
                 if (m_Keyboard.wasCanceled)
                     m_WasCanceled = true;
-
+                
                 OnDeselect(null);
             }
         }
@@ -1661,6 +1668,7 @@ namespace UnityEngine.UI
                     fullText = text;
 
                 string processed;
+                //输入类型为密码类型时，用*替换
                 if (inputType == InputType.Password)
                     processed = new string(asteriskChar, fullText.Length);
                 else
@@ -1688,13 +1696,13 @@ namespace UnityEngine.UI
 
                     var settings = m_TextComponent.GetGenerationSettings(extents);
                     settings.generateOutOfBounds = true;
-
+                    //生成mesh数据
                     cachedInputTextGenerator.PopulateWithErrors(processed, settings, gameObject);
-
+                    //计算光标位置
                     SetDrawRangeToContainCaretPosition(caretSelectPositionInternal);
 
                     processed = processed.Substring(m_DrawStart, Mathf.Min(m_DrawEnd, processed.Length) - m_DrawStart);
-
+                    //通过携程显示光标
                     SetCaretVisible();
                 }
                 m_TextComponent.text = processed;
