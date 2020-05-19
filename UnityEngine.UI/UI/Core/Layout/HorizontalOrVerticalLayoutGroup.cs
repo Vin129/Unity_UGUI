@@ -59,6 +59,7 @@ namespace UnityEngine.UI
             SetLayoutInputForAxis(totalMin, totalPreferred, totalFlexible, axis);
         }
 
+        //mark 5/19
         protected void SetChildrenAlongAxis(int axis, bool isVertical)
         {
             float size = rectTransform.rect.size[axis];
