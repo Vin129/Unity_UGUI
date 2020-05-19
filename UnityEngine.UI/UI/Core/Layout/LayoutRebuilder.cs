@@ -5,7 +5,7 @@ namespace UnityEngine.UI
 {
     public class LayoutRebuilder : ICanvasElement
     {
-        private RectTransform m_ToRebuild;
+        private RectTransform m_ToRebuild; //包含(ILayoutController组件)
         //There are a few of reasons we need to cache the Hash fromt he transform:
         //  - This is a ValueType (struct) and .Net calculates Hash from the Value Type fields.
         //  - The key of a Dictionary should have a constant Hash value.
@@ -58,6 +58,7 @@ namespace UnityEngine.UI
             s_Rebuilders.Release(rebuilder);
         }
 
+        //CanvasUpdateSystem触发重建
         public void Rebuild(CanvasUpdate executing)
         {
             switch (executing)
@@ -136,6 +137,7 @@ namespace UnityEngine.UI
             ListPool<Component>.Release(components);
         }
 
+        //脏标：标记物体进行布局处理
         public static void MarkLayoutForRebuild(RectTransform rect)
         {
             if (rect == null || rect.gameObject == null)
@@ -145,6 +147,8 @@ namespace UnityEngine.UI
             bool validLayoutGroup = true;
             RectTransform layoutRoot = rect;
             var parent = layoutRoot.parent as RectTransform;
+
+            //从物体父级路径寻中寻找是否存在布局组件(ILayoutGroup)
             while (validLayoutGroup && !(parent == null || parent.gameObject == null))
             {
                 validLayoutGroup = false;
@@ -166,6 +170,7 @@ namespace UnityEngine.UI
 
             // We know the layout root is valid if it's not the same as the rect,
             // since we checked that above. But if they're the same we still need to check.
+            // 检查自身是否满足布局要求
             if (layoutRoot == rect && !ValidController(layoutRoot, comps))
             {
                 ListPool<Component>.Release(comps);
@@ -193,6 +198,7 @@ namespace UnityEngine.UI
 
             return false;
         }
+        
 
         private static void MarkLayoutRootForRebuild(RectTransform controller)
         {
@@ -201,6 +207,7 @@ namespace UnityEngine.UI
 
             var rebuilder = s_Rebuilders.Get();
             rebuilder.Initialize(controller);
+            //从对象池中生成builder对象，并注册进CanvasUpdate中
             if (!CanvasUpdateRegistry.TryRegisterCanvasElementForLayoutRebuild(rebuilder))
                 s_Rebuilders.Release(rebuilder);
         }
