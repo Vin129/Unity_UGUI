@@ -17,6 +17,7 @@ namespace UnityEngine.UI
         [SerializeField] protected bool m_ChildControlHeight = true;
         public bool childControlHeight { get { return m_ChildControlHeight; } set { SetProperty(ref m_ChildControlHeight, value); } }
 
+        //根据轴计算
         protected void CalcAlongAxis(int axis, bool isVertical)
         {
             float combinedPadding = (axis == 0 ? padding.horizontal : padding.vertical);
@@ -62,6 +63,7 @@ namespace UnityEngine.UI
         //mark 5/19
         protected void SetChildrenAlongAxis(int axis, bool isVertical)
         {
+            //获取跟坐标轴有关的设置
             float size = rectTransform.rect.size[axis];
             bool controlSize = (axis == 0 ? m_ChildControlWidth : m_ChildControlHeight);
             bool childForceExpandSize = (axis == 0 ? childForceExpandWidth : childForceExpandHeight);
@@ -129,9 +131,11 @@ namespace UnityEngine.UI
             }
         }
 
+        //获取子物体尺寸
         private void GetChildSizes(RectTransform child, int axis, bool controlSize, bool childForceExpand,
             out float min, out float preferred, out float flexible)
         {
+            //若不能由控件控制尺寸，则返回子物体默认的尺寸
             if (!controlSize)
             {
                 min = child.sizeDelta[axis];
