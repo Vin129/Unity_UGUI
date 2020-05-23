@@ -17,7 +17,7 @@ namespace UnityEngine.UI
         [SerializeField] protected bool m_ChildControlHeight = true;
         public bool childControlHeight { get { return m_ChildControlHeight; } set { SetProperty(ref m_ChildControlHeight, value); } }
 
-        //初始化布局信息 TODO
+        //初始化布局信息 
         protected void CalcAlongAxis(int axis, bool isVertical)
         {
             float combinedPadding = (axis == 0 ? padding.horizontal : padding.vertical);
