@@ -136,7 +136,7 @@ namespace UnityEngine.UI
         protected float GetAlignmentOnAxis(int axis)
         {
             if (axis == 0)
-                return ((int)childAlignment % 3) * 0.5f;
+                return ((int)childAlignment % 3) * 0.5f; //0,0.5,1
             else
                 return ((int)childAlignment / 3) * 0.5f;
         }

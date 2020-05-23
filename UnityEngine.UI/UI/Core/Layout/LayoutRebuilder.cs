@@ -49,7 +49,6 @@ namespace UnityEngine.UI
         {
             components.RemoveAll(e => e is Behaviour && !((Behaviour)e).isActiveAndEnabled);
         }
-
         public static void ForceRebuildLayoutImmediate(RectTransform layoutRoot)
         {
             var rebuilder = s_Rebuilders.Get();
