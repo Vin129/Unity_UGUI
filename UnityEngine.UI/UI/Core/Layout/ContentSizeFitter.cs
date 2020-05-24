@@ -56,6 +56,7 @@ namespace UnityEngine.UI
 
         private void HandleSelfFittingAlongAxis(int axis)
         {
+            //获取目标轴的适应类型
             FitMode fitting = (axis == 0 ? horizontalFit : verticalFit);
             if (fitting == FitMode.Unconstrained)
             {
@@ -63,10 +64,11 @@ namespace UnityEngine.UI
                 m_Tracker.Add(this, rectTransform, DrivenTransformProperties.None);
                 return;
             }
-
+            //添加Tracker的部分无法被修改
             m_Tracker.Add(this, rectTransform, (axis == 0 ? DrivenTransformProperties.SizeDeltaX : DrivenTransformProperties.SizeDeltaY));
 
             // Set size to min or preferred size
+            //根据类型选择适应的尺寸
             if (fitting == FitMode.MinSize)
                 rectTransform.SetSizeWithCurrentAnchors((RectTransform.Axis)axis, LayoutUtility.GetMinSize(m_Rect, axis));
             else

@@ -42,8 +42,9 @@ namespace UnityEngine.UI
 
         public override void CalculateLayoutInputHorizontal()
         {
+            //LayoutGroup 基类方法
             base.CalculateLayoutInputHorizontal();
-
+            //若对排列有约束限制，则初始化设置参数
             int minColumns = 0;
             int preferredColumns = 0;
             if (m_Constraint == Constraint.FixedColumnCount)
@@ -59,7 +60,7 @@ namespace UnityEngine.UI
                 minColumns = 1;
                 preferredColumns = Mathf.CeilToInt(Mathf.Sqrt(rectChildren.Count));
             }
-
+            //同HorizontalOrVerticalLayoutGroup组件，初始化参数
             SetLayoutInputForAxis(
                 padding.horizontal + (cellSize.x + spacing.x) * minColumns - spacing.x,
                 padding.horizontal + (cellSize.x + spacing.x) * preferredColumns - spacing.x,
